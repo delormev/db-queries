@@ -12,15 +12,18 @@ Only support postgres databases for now. Your passwords must be set up in .pgpas
 ### Examples
 
 This connects to the databases with alias "database1" (interactive mode)
-```queries.sh -s database1
+```
+queries.sh -s database1
 ```
 
 This runs the query contained in your default input file on database1 and outputs the results to your default output file
-```queries.sh -s database1 -q
+```
+queries.sh -s database1 -q
 ```
 
 This runs the query contained in source.sql on database1 and outputs the results to result.cv
-```queries -s database1 -q -f source.sql -o result.csv
+```
+queries -s database1 -q -f source.sql -o result.csv
 ```
 
 ### Installation
@@ -31,7 +34,8 @@ It is basically a file like your .pgpass file, following the format: `alias:host
 All fields are mandatory.
 
 Example:
-```# alias:hostname:port:database:user
+```
+# alias:hostname:port:database:user
 database1:my.postgres.db.com:5432:my_database1:user1
 ```
 
