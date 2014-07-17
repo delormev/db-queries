@@ -40,6 +40,7 @@ Example:
 # alias:hostname:port:database:user
 database1:my.postgres.db.com:5432:my_database1:user1
 ```
+
 3. Edit queries-sample.conf and rename it to queries.conf when you're done
 This is to let the script know user defaults such as default input / output and the location of your db.info
 
