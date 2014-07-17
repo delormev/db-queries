@@ -1,9 +1,18 @@
 #!/bin/bash
-    
-# Set this to your default input/output files
-DEFAULT_INPUT="path/to/your/default/input.sql"
-DEFAULT_OUTPUT="path/to/your/default/result.csv"
-DB_INFO="path/to/your/db.info" # alias:hostname:port:database:user, 1 per line
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+if [ -f "$DIR/queries.config" ]; then
+    source "$DIR/queries.config" 
+else
+    echo "ERROR - config file $DIR/queries.config doesn't exist"
+    exit 1
+fi
 
 function getDatabasesInfo(){
     if [ -z $SOURCE ]; then
@@ -35,7 +44,7 @@ function queries-usage(){
     echo "-h                show brief help"
     echo "-q                query mode"
     echo "-f INPUT_SQL      specify input SQL to use. Default: $DEFAULT_INPUT"
-    echo "-o OUTPUT_CSV     specify output CSV. Default: $DEFAULT_OUTPUT"
+    echo "-o OUTPUT_CSV     specify output CSV. Default: STDOUT"
     exit 0
 }
 
@@ -49,6 +58,7 @@ HOST=
 PORT=
 DATABASE=
 USER=
+TUPLE_ONLY=
 
 # Parsing Variables
 if [[ $# -lt 2 ]]; then
@@ -57,7 +67,7 @@ if [[ $# -lt 2 ]]; then
     exit 1
 fi
 
-while getopts ":hs:qf:o:" opt; do
+while getopts ":hs:qtf:o:" opt; do
     case "$opt" in
         h)
             queries-usage
@@ -78,11 +88,14 @@ while getopts ":hs:qf:o:" opt; do
                 exit 1
             fi
             ;;
+        t)
+            TUPLE_ONLY="-t"
+            ;;
         o)
             OUTPUT=${OPTARG}
             ;;
         \?)
-            echo "WARNING - nvalid option: -$OPTARG."
+            echo "WARNING - invalid option: -$OPTARG."
             ;;
     esac
 done
@@ -95,8 +108,8 @@ fi
 
 # Check if querying from file or interactive queries
 if [ $QUERY -eq 0 ]; then
-    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER"
-    psql -h $HOST -p $PORT -d $DATABASE --user=$USER
+    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER $TUPLE_ONLY"
+    psql -h $HOST -p $PORT -d $DATABASE --user=$USER $TUPLE_ONLY
 else
     # Use default input if no INPUT provided
     if [[ -z $INPUT ]]; then
@@ -108,9 +121,9 @@ else
     if [[ -z $OUTPUT ]]; then
         echo "Using default output: $DEFAULT_OUTPUT"
         OUTPUT=$DEFAULT_OUTPUT
-    fi 
-    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT"
-    psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT
+    fi
+    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY"
+    psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY
 fi
 
 exit 0
