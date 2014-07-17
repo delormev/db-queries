@@ -34,7 +34,6 @@ queries -s database1 -q -f source.sql -o result.csv
 This is the master list of aliases mapped to your host x database details.
 It is basically a file like your .pgpass file, following the format: `alias:hostname:port:database:user`. 
 All fields are mandatory.
-
 Example:
 ```
 # alias:hostname:port:database:user
