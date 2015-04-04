@@ -126,4 +126,7 @@ else
     psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY
 fi
 
+# Remove line counter from end of CSV
+sed -i '' -e '$ d' $OUTPUT
+
 exit 0
