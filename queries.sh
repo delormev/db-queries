@@ -122,11 +122,8 @@ else
         echo "Using default output: $DEFAULT_OUTPUT"
         OUTPUT=$DEFAULT_OUTPUT
     fi
-    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY"
-    psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY
+    echo "psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY -P footer"
+    psql -h $HOST -p $PORT -d $DATABASE --user=$USER -A -F ',' -f $INPUT -o $OUTPUT $TUPLE_ONLY -P footer
 fi
-
-# Remove line counter from end of CSV
-sed -i '' -e '$ d' $OUTPUT
 
 exit 0
