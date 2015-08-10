@@ -54,16 +54,16 @@ createPostgresConnection <- function(dbAlias, pgPassFile = "~/.pgpass", dbConfFi
   dbMerged <- dbMerged[(dbMerged$database.x == "*") || (dbMerged$database.x == dbMerged$database.y), !(names(dbMerged) == "database.x")]
   names(dbMerged)[names(dbMerged) == "database.y"] <- "database"
   
-  redshiftLive <- subset(dbMerged, dbMerged$alias == dbAlias)
+  dbInfo <- subset(dbMerged, dbMerged$alias == dbAlias)
   
   # Creates driver + connection in the Global environment 
   drv <<- dbDriver("PostgreSQL")
   con <<- dbConnect(drv,
-                   host=redshiftLive$hostname,
-                   dbname=redshiftLive$database,
-                   user=redshiftLive$username,
-                   port=as.integer(redshiftLive$port),
-                   password=redshiftLive$password
+                   host=dbInfo$hostname,
+                   dbname=dbInfo$database,
+                   user=dbInfo$username,
+                   port=as.integer(dbInfo$port),
+                   password=dbInfo$password
   )
   
   if (!silent) {
