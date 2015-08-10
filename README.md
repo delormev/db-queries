@@ -87,6 +87,6 @@ dbUnloadDriver(drv)
 createPostgresConnection <- function(dbAlias, pgPassFile = "LOCATION_OF_YOUR_PGPASS", dbConfFile = "LOCATION_OF_YOUR_DB_CONF", silent = FALSE) {
 ```
 
-## Depencies
+## Dependencies
 + RPostgreSQL package
 + stringr package
