@@ -56,19 +56,31 @@ createPostgresConnection <- function(dbAlias, pgPassFile = "~/.pgpass", dbConfFi
   
   dbInfo <- subset(dbMerged, dbMerged$alias == dbAlias)
   
-  # Creates driver + connection in the Global environment 
-  drv <<- dbDriver("PostgreSQL")
-  con <<- dbConnect(drv,
+  # Creates driver + connection in the Global environment
+  if (exists("drv", where = globalenv())) {
+    for (conn in dbListConnections(drv)) { 
+      dbDisconnect(conn)
+    }
+    if (exists("con", where = globalenv())) {
+      rm(con, envir = globalenv())
+    }
+    dbUnloadDriver(drv)
+    rm(drv, envir = globalenv())
+  }
+  
+  assign("drv", dbDriver("PostgreSQL"), envir = globalenv())
+  assign("con", 
+         dbConnect(drv,
                    host=dbInfo$hostname,
                    dbname=dbInfo$database,
                    user=dbInfo$username,
                    port=as.integer(dbInfo$port),
-                   password=dbInfo$password
-  )
+                   password=dbInfo$password),
+         envir = globalenv())
   
   if (!silent) {
     cat("The following variables have been created your Global Environment:",
-        "\n\tdrv: PostgreSQL Driver\n\tcon: PostgreSQL connection to ", dbAlias, 
+        "\n\tdrv: PostgreSQL Driver\n\tcon: PostgreSQL connection to", dbAlias, 
         "\nDon't forget to release them at the end of your script, like this:",
         "\ndbDisconnect(con) # Closes the connection",
         "\ndbUnloadDriver(drv) # Frees up the resources used by the driver")
