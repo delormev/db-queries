@@ -31,17 +31,17 @@ queries.sh -s database1 -q -f source.sql -o result.csv
 
 1. Clone this git repository
 
-2. Edit db-sample.conf and rename it to db.conf when you're done.
-This is the master list of aliases mapped to your host x database details.
+2. Edit db-sample.conf and rename it to db.conf when you're done.  
+This is the master list of aliases mapped to your host x database details.  
 It is basically a file like your .pgpass file, following the format: `alias:dbtype:hostname:port:database:user`. 
-All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.
+All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.  
 Example: 
  ```
 database1:postgres:my.postgres.db.com:5432:my_database1:user1
 database1:mysql:my.mysql.db.com:3306:my_database1:user1
 ```
 
-3. Edit queries-sample.conf and rename it to queries.conf when you're done.
+3. Edit queries-sample.conf and rename it to queries.conf when you're done.  
 This is to let the script know user defaults such as default input / output and the location of your db.info
 
 4. Enjoy
