@@ -38,7 +38,7 @@ All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.
 Example: 
 ```
 database1:postgres:my.postgres.db.com:5432:my_database1:user1
-database1:mysql:my.postgres.db.com:5432:my_database1:user1
+database1:mysql:my.mysql.db.com:3306:my_database1:user1
 ```
 
 3. Edit queries-sample.conf and rename it to queries.conf when you're done.
