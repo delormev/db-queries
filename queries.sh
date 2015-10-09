@@ -4,7 +4,7 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve its relative to the path where the symlink file was located
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ -f "$DIR/queries.conf" ]; then
@@ -89,8 +89,25 @@ function connectPsql(){
 }
 
 function connectMysql(){
-    echo "psql -h $HOST -P $PORT -d $DATABASE -u $USER $DATABASE"
-    psql -h $HOST -P $PORT -d $DATABASE -u $USER $DATABASE
+    # Check if querying from file or interactive queries
+    if [ $QUERY -eq 0 ]; then
+        echo "mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE"
+        mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE
+    else
+        # Use default input if no INPUT provided
+        if [[ -z $INPUT ]]; then
+            echo "Using default input SQL: $DEFAULT_INPUT"
+            INPUT=$DEFAULT_INPUT
+        fi
+        
+        # Use default output if no OUTPUT provided
+        if [[ -z $OUTPUT ]]; then
+            echo "Using default output: $DEFAULT_OUTPUT"
+            OUTPUT=$DEFAULT_OUTPUT
+        fi
+        echo "mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE < $INPUT > $OUTPUT"
+        mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE < $INPUT > $OUTPUT
+    fi
     return
 }
 
