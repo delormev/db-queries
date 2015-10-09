@@ -36,7 +36,7 @@ This is the master list of aliases mapped to your host x database details.
 It is basically a file like your .pgpass file, following the format: `alias:dbtype:hostname:port:database:user`. 
 All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.
 Example: 
-```
+ ```
 database1:postgres:my.postgres.db.com:5432:my_database1:user1
 database1:mysql:my.mysql.db.com:3306:my_database1:user1
 ```
