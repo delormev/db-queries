@@ -4,10 +4,10 @@ A bash script that lets you easily connect to and query databases using aliases.
 
 ## queries.sh
 
-The scrip that lets you either query a database in interactive mode or run a query from a local file and export it to a CSV file on your local drive.
+The script lets you either query a database in interactive mode or run a query from a local file and export it to a CSV file on your local drive.
 Databases are described through a list of aliases, see "Installation" paragraph below. 
-Supports default input and output for those days where you're too lazy to specify input and output files.
-Works MySQL and postgres databases (including Redshift) for now. 
+Supports default input and output files for those days where you're too lazy to specify them.
+Works with MySQL and postgres databases (including Redshift) for now. 
 As this is just a wrapper around psql, the use of [.pgpass](http://www.postgresql.org/docs/current/static/libpq-pgpass.html) is supported when connecting to postgres databases.
 
 ## Examples
@@ -29,6 +29,8 @@ queries.sh -s database1 -q -f source.sql -o result.csv
 
 ## Installation
 
+### Basic Installation
+
 1. Clone this git repository
 
 2. Edit db-sample.conf and rename it to db.conf when you're done.  
@@ -44,6 +46,25 @@ database1:mysql:my.mysql.db.com:3306:my_database1:user1
 3. Edit queries-sample.conf and rename it to queries.conf when you're done.  
 This is to let the script know user defaults such as default input / output and the location of your db.info
 
+### About Passwords
+
+If you are not familiar with .pgpass files, no worries: you can read more about them [here](http://www.postgresql.org/docs/current/static/libpq-pgpass.html), or just use the script as it is (it will just prompt you for a password if needed.)
+To match the native Postgres behaviour, the command supports a password file for MySQL as well. You can just add those to your normal .pgpass file and it'll pick it up! 
+The password is used in the command line, which is super secure (as the MySQL startup message will remind you), but it won't be displayed in your terminal when you connect to a database that way. 
+
+### Advanced Set-Up: tunneling through remote server
+
+I've also built support for databases behind firewalls / on server where the database ports are not open. 
+The only thing you'll need is SSH access without having to specify a password (either by saving your public key in .ssh/authorized_keys on the remote or by specifying an identity key).
+
+The way to use this feature is to modify your `db.conf` file to include the port you want to tunnel through, and if necessary the username and location of the identity file.
+
+Simply add `[port]`, `[port:username]` or `[port:username:certificate location]` at the end of the line in your db.conf file. So the format becomes:
+  ```
+database1:postgres:my.postgres.db.com:5432:my_database1:user1[port:username:certificate]
+database1:mysql:my.mysql.db.com:3306:my_database1:user1[tunnel_port:ssh_username:my_certificate]
+```
+
 4. Enjoy
 
 ## Requirements
@@ -51,5 +72,5 @@ This is to let the script know user defaults such as default input / output and 
 + mysql
 
 ## Future improvements
-+ A password file that lets you store your passwords locally (like .pgpass but database agnostic)
++ Add a layer of security to the password file (for example by checking the file permissions and making sure they are not too open)
 + Improved support for Redshift by UNLOADING to s3.
