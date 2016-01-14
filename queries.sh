@@ -10,7 +10,12 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ -f "$DIR/queries.conf" ]; then
     source "$DIR/queries.conf" 
 else
-    echo "ERROR - config file $DIR/queries.conf doesn't exist"
+    echo "ERROR - config file $DIR/queries.conf does not exist."
+    exit 1
+fi
+
+if ! [ -f $DB_INFO ]; then
+    echo "ERROR - database master list $DB_INFO does not exist."
     exit 1
 fi
 
@@ -21,13 +26,17 @@ function getDatabaseInfo(){
     fi
     IFS=$'\r\n' DB_LIST=($(cat $DB_INFO))
     for LINE in "${DB_LIST[@]}"; do
-        if [[ $LINE =~ ^([^#][^:]*):([^:]*):([^:]*):([^:]*):([^:]*):([^:]*)$ ]]; then
+        if [[ $LINE =~ ^([^#][^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:[]+)(\[([0-9]+)(:([^:\[]+)(:([^:\[]+))?)?\])?$ ]]; then
             if [[ "${BASH_REMATCH[1]}" == $SOURCE ]]; then
                 DBTYPE="${BASH_REMATCH[2]}"
                 HOST="${BASH_REMATCH[3]}"
                 PORT="${BASH_REMATCH[4]}"
                 DATABASE="${BASH_REMATCH[5]}"
                 USER="${BASH_REMATCH[6]}"
+                TUNNEL="${BASH_REMATCH[7]}"
+                TUNNELPORT="${BASH_REMATCH[8]}"
+                TUNNELUSER="${BASH_REMATCH[10]}"
+                TUNNELPEM="${BASH_REMATCH[12]}"
                 case "$DBTYPE" in 
                     psql) 
                         ;;
@@ -44,6 +53,22 @@ function getDatabaseInfo(){
     done
     echo "getDatabasesInfo: ERROR - source $SOURCE not found in $DB_INFO."
     exit 1
+}
+
+function grabPassword(){
+    if [[ -f ~/.pgpass ]]; then
+        IFS=$'\r\n' PASS_LIST=($(cat ~/.pgpass))
+        for LINE in "${PASS_LIST[@]}"; do
+            if [[ $LINE =~ ^([^#][^:]+):([^:]+):([^:]+):([^:]+):(.+)$ ]]; then
+                if [[ "${BASH_REMATCH[1]}" == "$HOST" && "${BASH_REMATCH[2]}" == "$PORT" ]] && [[ "${BASH_REMATCH[3]}" == "$DATABASE" || "${BASH_REMATCH[3]}" == "*" ]] && [[ "${BASH_REMATCH[4]}" == "$USER" ]]; then
+                    PASSWORD="=${BASH_REMATCH[5]}"
+                fi
+            fi
+        done
+    else
+        echo "No password found, prompting for it..."
+    fi
+    return
 }
 
 function checkDatabaseInfo(){
@@ -92,7 +117,7 @@ function connectMysql(){
     # Check if querying from file or interactive queries
     if [ $QUERY -eq 0 ]; then
         echo "mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE"
-        mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE
+        mysql --host=$HOST --port=$PORT --password$PASSWORD --user=$USER $DATABASE
     else
         # Use default input if no INPUT provided
         if [[ -z $INPUT ]]; then
@@ -106,8 +131,9 @@ function connectMysql(){
             OUTPUT=$DEFAULT_OUTPUT
         fi
         echo "mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE < $INPUT > $OUTPUT"
-        mysql --host=$HOST --port=$PORT --password --user=$USER $DATABASE < $INPUT > $OUTPUT
+        mysql --host=$HOST --port=$PORT --password$PASSWORD --user=$USER $DATABASE < $INPUT > $OUTPUT
     fi
+
     return
 }
 
@@ -123,6 +149,14 @@ PORT=
 DATABASE=
 USER=
 TUPLE_ONLY=
+
+PASS=
+
+TUNNEL=
+TUNNELHOST=
+TUNNERLPORT=
+TUNNELUSER=
+TUNNELPEM=
 
 # Parsing Variables
 if [[ $# -lt 2 ]]; then
@@ -164,6 +198,20 @@ while getopts ":hs:qtf:o:" opt; do
             ;;
     esac
 done
+
+grabPassword
+
+if ! [ -z $TUNNEL ]; then
+    TUNNELHOST="$HOST"
+
+    # Open tunnel and leave it open until mysql or postgres has finished
+    COMMAND="ssh -f -o ExitOnForwardFailure=yes $TUNNELUSER@$TUNNELHOST -L $TUNNELPORT:127.0.0.1:$PORT -i $TUNNELPEM sleep 10"
+    eval $COMMAND
+    echo "$COMMAND"
+
+    HOST="127.0.0.1"
+    PORT="$TUNNELPORT"
+fi
 
 case $DBTYPE in
     psql)
