@@ -39,6 +39,7 @@ It is basically a file like your .pgpass file, following the format: `alias:dbty
 All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.  
 Example: 
  ```
+#alias:dbtype:hostname:port:database:user
 database1:postgres:my.postgres.db.com:5432:my_database1:user1
 database1:mysql:my.mysql.db.com:3306:my_database1:user1
 ```
@@ -61,7 +62,7 @@ The way to use this feature is to modify your `db.conf` file to include the port
 
 Simply add `[port]`, `[port:username]` or `[port:username:certificate location]` at the end of the line in your db.conf file. So the format becomes:
   ```
-database1:postgres:my.postgres.db.com:5432:my_database1:user1[port:username:certificate]
+#alias:dbtype:hostname:port:database:user[port:username:certificate]
 database1:mysql:my.mysql.db.com:3306:my_database1:user1[tunnel_port:ssh_username:my_certificate]
 ```
 
