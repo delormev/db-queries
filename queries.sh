@@ -204,6 +204,13 @@ grabPassword
 if ! [ -z $TUNNEL ]; then
     TUNNELHOST="$HOST"
 
+    # Find an available port
+    AVAILABLE_PORT=$(lsof -Pi :"$TUNNELPORT" -sTCP:LISTEN -t)
+    while [ ! -z $AVAILABLE_PORT ]; do
+        TUNNELPORT=$(($TUNNELPORT+1))
+        AVAILABLE_PORT=$(lsof -Pi :"$TUNNELPORT" -sTCP:LISTEN -t)
+    done
+    
     # Open tunnel and leave it open until mysql or postgres has finished
     COMMAND="ssh -f -o ExitOnForwardFailure=yes $TUNNELUSER@$TUNNELHOST -L $TUNNELPORT:127.0.0.1:$PORT -i $TUNNELPEM sleep 10"
     eval $COMMAND
