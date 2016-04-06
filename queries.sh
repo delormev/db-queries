@@ -26,7 +26,7 @@ function getDatabaseInfo(){
     fi
     IFS=$'\r\n' DB_LIST=($(cat $DB_INFO))
     for LINE in "${DB_LIST[@]}"; do
-        if [[ $LINE =~ ^([^#][^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:[]+)(\[([0-9]+)(:([^:\[]+)(:([^:\[]+))?)?\])?$ ]]; then
+        if [[ $LINE =~ ^([^#][^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:[]+)(\[([0-9]+)(:([^:\[]+))?\])?$ ]]; then
             if [[ "${BASH_REMATCH[1]}" == $SOURCE ]]; then
                 DBTYPE="${BASH_REMATCH[2]}"
                 HOST="${BASH_REMATCH[3]}"
@@ -36,7 +36,6 @@ function getDatabaseInfo(){
                 TUNNEL="${BASH_REMATCH[7]}"
                 TUNNELPORT="${BASH_REMATCH[8]}"
                 TUNNELUSER="${BASH_REMATCH[10]}"
-                TUNNELPEM="${BASH_REMATCH[12]}"
                 case "$DBTYPE" in 
                     psql) 
                         ;;
@@ -156,7 +155,6 @@ TUNNEL=
 TUNNELHOST=
 TUNNERLPORT=
 TUNNELUSER=
-TUNNELPEM=
 
 # Parsing Variables
 if [[ $# -lt 2 ]]; then
@@ -212,7 +210,7 @@ if ! [ -z $TUNNEL ]; then
     done
     
     # Open tunnel and leave it open until mysql or postgres has finished
-    COMMAND="ssh -f -o ExitOnForwardFailure=yes $TUNNELUSER@$TUNNELHOST -L $TUNNELPORT:127.0.0.1:$PORT -i $TUNNELPEM sleep 10"
+    COMMAND="ssh -f -o ExitOnForwardFailure=yes $TUNNELUSER@$TUNNELHOST -L $TUNNELPORT:127.0.0.1:$PORT sleep 10"
     eval $COMMAND
     echo "$COMMAND"
 

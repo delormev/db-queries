@@ -47,26 +47,26 @@ database1:mysql:my.mysql.db.com:3306:my_database1:user1
 3. Edit queries-sample.conf and rename it to queries.conf when you're done.  
 This is to let the script know user defaults such as default input / output and the location of your db.info
 
+4. Enjoy
+
 ### About Passwords
 
 If you are not familiar with .pgpass files, no worries: you can read more about them [here](http://www.postgresql.org/docs/current/static/libpq-pgpass.html), or just use the script as it is (it will just prompt you for a password if needed.)
 To match the native Postgres behaviour, the command supports a password file for MySQL as well. You can just add those to your normal .pgpass file and it'll pick it up! 
-The password is used in the command line, which is super secure (as the MySQL startup message will remind you), but it won't be displayed in your terminal when you connect to a database that way. 
+The password is used in the command line, which isn't super secure (as the MySQL startup message will remind you), but it won't be displayed in your terminal when you connect to a database that way. 
 
 ### Advanced Set-Up: tunneling through remote server
 
 I've also built support for databases behind firewalls / on server where the database ports are not open. 
-The only thing you'll need is SSH access without having to specify a password (either by saving your public key in .ssh/authorized_keys on the remote or by specifying an identity key).
+The only thing you'll need is SSH access without having to specify a password.
 
-The way to use this feature is to modify your `db.conf` file to include the port you want to tunnel through, and if necessary the username and location of the identity file.
+The way to use this feature is to modify your `db.conf` file to include the port you want to tunnel through and the username (if it's different to your local username).
 
-Simply add `[port]`, `[port:username]` or `[port:username:certificate location]` at the end of the line in your db.conf file. So the format becomes:
+Simply add `[port]` or `[port:username]` at the end of the line in your db.conf file. So the format becomes:
   ```
-#alias:dbtype:hostname:port:database:user[port:username:certificate]
-database1:mysql:my.mysql.db.com:3306:my_database1:user1[tunnel_port:ssh_username:my_certificate]
+#alias:dbtype:hostname:port:database:user[port:username]
+database1:mysql:my.mysql.db.com:3306:my_database1:user1[tunnel_port:ssh_username]
 ```
-
-4. Enjoy
 
 ## Requirements
 + psql
