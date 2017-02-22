@@ -36,7 +36,7 @@ queries.sh -s database1 -q -f source.sql -o result.csv
 2. Edit db-sample.conf and rename it to db.conf when you're done.  
 This is the master list of aliases mapped to your host x database details.  
 It is basically a file like your .pgpass file, following the format: `alias:dbtype:hostname:port:database:user`. 
-All fields are mandatory; `dbtype` can either be `postgres` or `mysql`.  
+All fields are mandatory; `dbtype` can either be `psql` or `mysql`.  
 Example: 
  ```
 #alias:dbtype:hostname:port:database:user
